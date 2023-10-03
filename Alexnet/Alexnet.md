@@ -87,6 +87,8 @@ model.compile(optimizer='adam',
 print(x_train2.shape)
 history = model.fit(x_train2, y_train, epochs=20, batch_size = 32, validation_data=(x_val, y_val))
 ```
+![image](https://github.com/staro190/Vision_Practice/assets/16371108/6e361e6d-5efc-47a8-9c4d-650b1b3ae169)
+
 
 ### Validation
 - 최적 Epoch를 확인하기 위한 시각화과정
@@ -123,6 +125,9 @@ plt.title('Training and Validation Loss')
 plt.xlabel('epoch')
 plt.show()
 ```
+![image](https://github.com/staro190/Vision_Practice/assets/16371108/ac8a0d29-a893-47f3-827d-998dca142c70)
+
+
 
 ### Evaluate
 - 테스트셋을 이용해서 모델을 평가
@@ -130,6 +135,9 @@ plt.show()
 ```
 model.evaluate(x_test,  y_test, verbose=2)
 ```
+![image](https://github.com/staro190/Vision_Practice/assets/16371108/639641f4-4e11-471b-a66e-62663fcd891a)
+
+
 
 ### 느낀점
 - `Yolo` 등 사용이 간편하게 구성된 모델만 라이브러리를 통해 쉽게 사용했었는데, 이렇게 직접 레이어들을 구성하니 각 레이어의 특징과 역할을 조금 알게되었습니다.
