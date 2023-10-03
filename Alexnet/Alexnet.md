@@ -131,7 +131,7 @@ plt.show()
 
 ### Evaluate
 - 테스트셋을 이용해서 모델을 평가
-- 정확도(`Accuracy`)가 약 ??% 임을 확인함
+- 정확도(`Accuracy`)가 약 90% 임을 확인함
 ```
 model.evaluate(x_test,  y_test, verbose=2)
 ```
