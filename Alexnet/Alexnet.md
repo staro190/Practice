@@ -72,3 +72,18 @@ print(model.summary())
 ```
 ![image](https://github.com/staro190/Vision_Practice/assets/16371108/6f680df6-9066-411d-9edd-d2c7243eca12)
 
+### Training
+- Optimizer는 `Adam` 사용
+- 손실(목적)함수는 `sparse_categorical_crossentropy` 사용
+- 성능 확인용 지표 `Accuracy` 이용
+- 전체 Epoch : 10
+- 배치사이즈 : 32
+
+```
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+print(x_train2.shape)
+history = model.fit(x_train2, y_train, epochs=20, batch_size = 32, validation_data=(x_val, y_val))
+```
