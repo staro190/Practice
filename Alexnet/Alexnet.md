@@ -1,4 +1,4 @@
-# Alexnet
+![image](https://github.com/staro190/Vision_Practice/assets/16371108/95107f3a-e32a-4820-8fd2-aba7ae97ff3a)# Alexnet
 
 ### Data
 - 사이킷런 라이브러리에서 제공하는 `Fashion Mnist` 데이터셋 이용
@@ -11,3 +11,8 @@ fashion_mnist = keras.datasets.fashion_mnist
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5, random_state=1, shuffle=False)
 ```
+
+### Model
+- AlexNet 기본 구조 사용
+- `Fashion Mnist`는 (28 × 28) 크기이므로 (227 × 227) 크기로 데이터 확장
+- 
