@@ -70,3 +70,58 @@ model.add(layers.Dense(10, activation='softmax'))
 # 알렉스넷 구성 확인
 print(model.summary())
 ```
+```
+`#RRGGBB`
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ resizing (Resizing)         (None, 227, 227, 1)       0         
+                                                                 
+ conv2d (Conv2D)             (None, 57, 57, 96)        11712     
+                                                                 
+ max_pooling2d (MaxPooling2  (None, 28, 28, 96)        0         
+ D)                                                              
+                                                                 
+ batch_normalization (Batch  (None, 28, 28, 96)        384       
+ Normalization)                                                  
+                                                                 
+ conv2d_1 (Conv2D)           (None, 28, 28, 256)       614656    
+                                                                 
+ max_pooling2d_1 (MaxPoolin  (None, 14, 14, 256)       0         
+ g2D)                                                            
+                                                                 
+ batch_normalization_1 (Bat  (None, 14, 14, 256)       1024      
+ chNormalization)                                                
+                                                                 
+ conv2d_2 (Conv2D)           (None, 14, 14, 384)       885120    
+                                                                 
+ conv2d_3 (Conv2D)           (None, 14, 14, 384)       1327488   
+                                                                 
+ conv2d_4 (Conv2D)           (None, 14, 14, 384)       1327488   
+                                                                 
+ max_pooling2d_2 (MaxPoolin  (None, 6, 6, 384)         0         
+ g2D)                                                            
+                                                                 
+ batch_normalization_2 (Bat  (None, 6, 6, 384)         1536      
+ chNormalization)                                                
+                                                                 
+ flatten (Flatten)           (None, 13824)             0         
+                                                                 
+ dense (Dense)               (None, 4096)              56627200  
+                                                                 
+ dropout (Dropout)           (None, 4096)              0         
+                                                                 
+ dense_1 (Dense)             (None, 4096)              16781312  
+                                                                 
+ dropout_1 (Dropout)         (None, 4096)              0         
+                                                                 
+ dense_2 (Dense)             (None, 10)                40970     
+                                                                 
+=================================================================
+Total params: 77618890 (296.09 MB)
+Trainable params: 77617418 (296.09 MB)
+Non-trainable params: 1472 (5.75 KB)
+_________________________________________________________________
+None
+```
