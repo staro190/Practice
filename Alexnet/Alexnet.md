@@ -74,7 +74,7 @@ print(model.summary())
 
 ### Training
 - Optimizer는 `Adam` 사용
-- 손실(목적)함수는 `sparse_categorical_crossentropy` 사용
+- 손실(목적)함수는 `sparse_categorical_crossentropy` 사용(분류 문제, 정수 레이블)
 - 성능 확인용 지표 `Accuracy` 이용
 - 전체 Epoch : 10
 - 배치사이즈 : 32
