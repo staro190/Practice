@@ -87,3 +87,8 @@ model.compile(optimizer='adam',
 print(x_train2.shape)
 history = model.fit(x_train2, y_train, epochs=20, batch_size = 32, validation_data=(x_val, y_val))
 ```
+
+### Validation
+- 최적 Epoch를 확인하기 위한 시각화과정
+- `Learning Curve`를 `Accuracy`와 `Loss` 2개 관점에서 작성
+- 과적합 구간을 확인함
