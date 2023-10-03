@@ -1,6 +1,7 @@
 # Alexnet
 
-### Library
+### 환경
+- Colab T4 GPU
 - `TensorFlow` 라이브러리 중 `Keras` 사용
 - `Sklearn` 라이브러리에서 `Fashion Mnist` 다운로드 사용
 - 기타(`Matplotlib`, `Numpy`) 등 사용
