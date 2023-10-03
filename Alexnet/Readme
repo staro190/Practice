@@ -1,1 +1,5 @@
-<p> Data : fasion mnist in sklearn </p>
+Data : fasion mnist in sklearn
+Tool : TF/Keras
+Model : Alexnet
+Optimizer : Adam
+Tr/Val/Test : 8/1/1
