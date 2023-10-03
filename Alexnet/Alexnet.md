@@ -1,4 +1,4 @@
-![image](https://github.com/staro190/Vision_Practice/assets/16371108/95107f3a-e32a-4820-8fd2-aba7ae97ff3a)# Alexnet
+# Alexnet
 
 ### Data
 - 사이킷런 라이브러리에서 제공하는 `Fashion Mnist` 데이터셋 이용
@@ -13,6 +13,7 @@ x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5, r
 ```
 
 ### Model
+![image](https://github.com/staro190/Vision_Practice/assets/16371108/95107f3a-e32a-4820-8fd2-aba7ae97ff3a)
 - AlexNet 기본 구조 사용
 - `Fashion Mnist`는 (28 × 28) 크기이므로 (227 × 227) 크기로 데이터 확장
 - 
