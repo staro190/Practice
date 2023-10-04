@@ -78,7 +78,7 @@ print(model.summary())
 - 손실(목적)함수는 `sparse_categorical_crossentropy` 사용(분류 문제, 정수 레이블)
 - 성능 확인용 지표 `Accuracy` 이용
 - 전체 Epoch : 10
-- 배치사이즈 : 32
+- 배치사이즈 : 64
 
 ```
 model.compile(optimizer='adam',
@@ -86,7 +86,7 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 print(x_train2.shape)
-history = model.fit(x_train2, y_train, epochs=20, batch_size = 32, validation_data=(x_val, y_val))
+history = model.fit(x_train2, y_train, epochs=10, batch_size = 64, validation_data=(x_val, y_val))
 ```
 ![image](https://github.com/staro190/Vision_Practice/assets/16371108/6e361e6d-5efc-47a8-9c4d-650b1b3ae169)
 
