@@ -29,8 +29,58 @@ path2data = '/content/data'
 train_data = datasets.MNIST(path2data, train=True, download=True, transform = data_transform)
 val_data = datasets.MNIST(path2data, train=False, download=True, transform = data_transform)
 ```
-3) 
-4) ㅇ
+3) 데이터 로더 정의
+   - 배치 사이즈로 데이터를 불러오는 로더 정의
+```
+# Define Loader with Dataset
+from torch.utils.data import DataLoader
+
+train_dl = DataLoader(train_data, batch_size=32, shuffle=True)
+val_dl = DataLoader(val_data, batch_size= 32)
+```
+
+### Model
+
+1) 모델 클래스 정의
+   - LeNet_5 구조 사용
+   - `torch.nn` 라이브러리의 `Module` 클래스 상속
+```
+from torch import nn
+import torch.nn.functional as F
+import torch
+class LeNet_5(nn.Module):
+  def __init__(self):
+    super(LeNet_5, self).__init__()
+    self.conv1 = nn.Conv2d(1, 6, kernel_size=5, stride=1)
+    self.conv2 = nn.Conv2d(6, 16, kernel_size=5, stride=1)
+    self.conv3 = nn.Conv2d(16, 120, kernel_size=5, stride=1)
+
+    self.fc1 = nn.Linear(120, 84)
+    self.fc2 = nn.Linear(84, 10)
+
+  def forward(self, x):
+    x = F.tanh(self.conv1(x))
+    x = F.avg_pool2d(x, 2, 2)
+
+    x = F.tanh(self.conv2(x))
+    x = F.avg_pool2d(x, 2, 2)
+
+    x = F.tanh(self.conv3(x))
+    x = x.view(-1, 120)
+
+    x = F.tanh(self.fc1(x))
+    x = self.fc2(x)
+
+    return F.softmax(x, dim=1)
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(device)
+
+model = LeNet_5().to(device)
+print(model)
+
+```
+2) 
 5) 
 - 사이킷런 라이브러리에서 제공하는 `Fashion Mnist` 데이터셋 이용
 - 60,000 개의 훈련 데이터와 10,000개의 테스트셋으로 구성
