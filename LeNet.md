@@ -269,34 +269,4 @@ plt.xlabel("Training Epochs")
 plt.legend()
 plt.show()
 ```
-# 학습 곡선 플롯(Loss)
-plt.subplot(2, 1, 2)
-plt.plot(loss, label='Training Loss')
-plt.plot(val_loss, label='Validation Loss')
-plt.legend(loc='upper right')
-plt.ylabel('Cross Entropy')
-plt.ylim([0,1.0])
-plt.title('Training and Validation Loss')
-plt.xlabel('epoch')
-plt.show()
-```
-![image](https://github.com/staro190/Vision_Practice/assets/16371108/ac8a0d29-a893-47f3-827d-998dca142c70)
 
-
-
-### Evaluate
-- 테스트셋을 이용해서 모델을 평가
-- 정확도(`Accuracy`)가 약 90% 임을 확인함
-```
-model.evaluate(x_test,  y_test, verbose=2)
-```
-![image](https://github.com/staro190/Vision_Practice/assets/16371108/639641f4-4e11-471b-a66e-62663fcd891a)
-
-
-
-### 느낀점
-- `Yolo` 등 사용이 간편하게 구성된 모델만 라이브러리를 통해 쉽게 사용했었는데, 이렇게 직접 레이어들을 구성하니 각 레이어의 특징과 역할을 조금 알게되었습니다.
-- 모델을 구현하면서 블로그 참조를 많이 하였으나, 기본적으로 모델 그림을 보고 구현하고자 하였습니다.
-- 모델 그림을 보고 구현 시, 입출력 Shape와 채널 등을 맞춰주는게 제일 어려웠습니다.
-- 특히 `Fashoin Mnist` 데이터셋을 `Alexnet`의 기본 형태인 227×227로 바꿔주는 방법에서 시간이 오래 걸렸습니다.
-- 직접 만들고 확인해보니 다른 모델들도 이렇게 구현해보고 싶습니다.
