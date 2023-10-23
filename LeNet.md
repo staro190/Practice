@@ -1,4 +1,4 @@
-# LeNet
+# LeNet
 
 ### 환경
 - Colab CPU
