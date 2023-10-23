@@ -79,83 +79,167 @@ print(device)
 model = LeNet_5().to(device)
 print(model)
 
-```
-2) 
-5) 
-- 사이킷런 라이브러리에서 제공하는 `Fashion Mnist` 데이터셋 이용
-- 60,000 개의 훈련 데이터와 10,000개의 테스트셋으로 구성
-- 테스트셋을 2개로 분리하여 검증셋과 테스트셋 구성
-- 데이터를 안정적인 비율로 구성하기 위하여 8:1:1로 구성
+from torchsummary import summary
+summary(model, input_size=(1,32,32))
 
 ```
-fashion_mnist = keras.datasets.fashion_mnist
-(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
-x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5, random_state=1, shuffle=False)
-```
-
-### Model
-![image](https://github.com/staro190/Vision_Practice/assets/16371108/95107f3a-e32a-4820-8fd2-aba7ae97ff3a)
-- AlexNet 기본 구조 사용
-- `Fashion Mnist`는 (28 × 28) 크기이므로 (227 × 227) 크기로 데이터 확장
-- `Fashion Mnist`는 그레이스케일 이미지이므로 위 그림에서 채널은 1로 봐야함
-- Conv, Pool, Norm 으로 구성된 레이어 2개와 Conv × 3, Pool, Norm 1개, FC 3개로 구성
-- 파라미터 개수는 위 그림과 동일, 패딩은 모두 1칸(`same` 옵션)
-
-```
-# 모델 구성
-model = keras.Sequential()
-
-# 그레이스케일 이미지에 맞춰 Train 데이터 Shape 변경
-x_train2 = np.reshape(x_train, (60000, 28, 28, 1))
-
-# Conv 1
-model.add(layers.experimental.preprocessing.Resizing(227, 227, interpolation='bilinear',input_shape=x_train2.shape[1:]))
-model.add(layers.Conv2D(96,(11,11), strides=(4,4), activation='relu',padding='same'))
-model.add(layers.MaxPool2D((3,3), strides=2))
-model.add(layers.BatchNormalization())
-
-# Conv 2
-model.add(layers.Conv2D(256,(5,5), strides=1, activation='relu',padding='same'))
-model.add(layers.MaxPool2D((2,2), strides=2))
-model.add(layers.BatchNormalization())
-
-# Conv 3
-model.add(layers.Conv2D(384,(3,3), strides=1, activation='relu',padding='same'))
-model.add(layers.Conv2D(384,(3,3), strides=1, activation='relu',padding='same'))
-model.add(layers.Conv2D(384,(3,3), strides=1, activation='relu',padding='same'))
-model.add(layers.MaxPool2D((3,3), strides=2))
-model.add(layers.BatchNormalization())
-
-# FC
-model.add(layers.Flatten())
-model.add(layers.Dense(4096, activation='relu'))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(4096, activation='relu'))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(10, activation='softmax'))
-
-# 알렉스넷 구성 확인
-print(model.summary())
-```
-![image](https://github.com/staro190/Vision_Practice/assets/16371108/6f680df6-9066-411d-9edd-d2c7243eca12)
 
 ### Training
-- Optimizer는 `Adam` 사용
-- 손실(목적)함수는 `sparse_categorical_crossentropy` 사용(분류 문제, 정수 레이블)
-- 성능 확인용 지표 `Accuracy` 이용
-- 전체 Epoch : 10
-- 배치사이즈 : 64
+
+1) 학습 옵션 설정
+   - Optimizer : `Adam`
+   - Loss Function : `CrossEntropyLoss`, Batch에 대하여 `sum`
+   - learning rate schedule : `CosineAnnealingLR` , `Cosine` 함수 형태로 `Learning Rate`가 변화
 
 ```
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+from torch import optim
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
-print(x_train2.shape)
-history = model.fit(x_train2, y_train, epochs=10, batch_size = 64, validation_data=(x_val, y_val))
+loss_func = nn.CrossEntropyLoss(reduction='sum')
+opt = optim.Adam(model.parameters(), lr=0.001)
+lr_scheduler = CosineAnnealingLR(opt, T_max=2, eta_min=1e-05)
 ```
-![image](https://github.com/staro190/Vision_Practice/assets/16371108/6e361e6d-5efc-47a8-9c4d-650b1b3ae169)
+2) 학습에 사용될 함수 정의
+   - get_lr : 최적 파라미터 딕셔너리에서 lr 전달
+   - metrics_batch : 예측과 정답을 비교하여 정답(TP) 개수를 정수로 반환
+   - loss_batch : 손실함수 적용, 기울기 변수 초기화 및 역전파(1step)
+   - loss_epoch : 1 epoch 적용
+```
+import torch
 
+def get_lr(opt):
+  for param_group in opt.param_groups:
+    return param_group['lr']
+
+def metrics_batch(output, target):
+  # softmax -> argmax , prediction number(0~9)
+  pred = output.argmax(dim=1, keepdim=True)
+  # calculate number of correct
+  corrects = pred.eq(target.view_as(pred)).sum().item()
+  return corrects
+
+def loss_batch(loss_func, output, target, opt=None):
+  loss = loss_func(output, target)
+  metric_b = metrics_batch(output, target)
+  # opt initailize, 
+  if opt is not None:
+    # pre step's backward gradient initailize
+    opt.zero_grad()
+    # loss back propagation
+    loss.backward()
+    # add calculated grad on parameter
+    opt.step()
+  return loss.item(), metric_b
+
+def loss_epoch(model, loss_func, dataset_dl, sanity_check=False, opt=None):
+  running_loss = 0.0
+  running_metric = 0.0
+  len_data = len(dataset_dl.dataset)
+
+  # epoch running(batch)
+  for xb, yb in dataset_dl:
+    # batch size data load to device
+    xb = xb.type(torch.float).to(device)
+    yb = yb.to(device)
+    # batch data input to model
+    output = model(xb)
+    loss_b, metric_b = loss_batch(loss_func, output, yb, opt)
+    running_loss += loss_b
+
+    if metric_b is not None:
+      running_metric += metric_b
+
+    # for check
+    if sanity_check is True:
+      break
+
+  # Average Loss of 1 epoch
+  loss = running_loss/float(len_data)
+  # Average Accuract of 1 epoch
+  metric = running_metric/float(len_data)
+  return loss, metric
+
+```
+3) 학습 함수
+   - 전체 `epoch` 만큼 진행
+   - `learning rate` 관리, 모델 `train`/`eval`
+   - Val Set에 대하여 계산 및 최적 모델 상태 탐색 / 저장
+```
+import copy
+
+def train_val(model, params):
+  num_epochs = params['num_epochs']
+  loss_func = params['loss_func']
+  opt = params['optimizer']
+  train_dl = params['train_dl']
+  val_dl = params['val_dl']
+  sanity_check = params['sanity_check']
+  lr_scheduler = params['lr_sheduler']
+  path2weights = params['path2weights']
+
+  loss_history = {
+      'train' : [],
+      'val': [],
+  }
+
+  metric_history = {
+      'train' : [],
+      'val': [],
+  }
+
+  best_model_wts = copy.deepcopy(model.state_dict())
+  best_loss = float('inf')
+
+  for epoch in range(num_epochs):
+    current_lr = get_lr(opt)
+    print('Epoch {}/{}, current lr={}'.format(epoch, num_epochs-1, current_lr))
+    model.train()
+    train_loss, train_metric = loss_epoch(model, loss_func, train_dl, sanity_check, opt)
+
+    loss_history['train'].append(train_loss)
+    metric_history['train'].append(train_metric)
+
+    model.eval()
+    # grad update off
+    with torch.no_grad():
+      # just cal of validation set / model parameter's are freezed / one epoch cal
+      val_loss, val_metric = loss_epoch(model, loss_func, val_dl, sanity_check)
+      loss_history['val'].append(val_loss)
+      metric_history['val'].append(val_metric)
+
+    # find Best State
+    if val_loss < best_loss:
+      best_loss = val_loss
+      best_model_wts = copy.deepcopy(model.state_dict())
+      #torch.save(model.state_dict(), path2weights)
+      print('Copied best model weights')
+
+    # update lr schedule
+    lr_scheduler.step()
+
+    print('train loss: %.6f, dev loss: %.6f, accuracy: %.2f' %(train_loss, val_loss, 100*val_metric))
+    print('-'*10)
+
+  # return model's best state / history
+  model.load_state_dict(best_model_wts)
+  return model, loss_history, metric_history
+```
+4) 학습
+   - 하이퍼파라미터 지정 후 학습함수 실행
+```
+
+params_train = {}
+params_train['num_epochs'] = 100
+params_train['loss_func'] = loss_func
+params_train['optimizer'] = opt
+params_train['train_dl'] = train_dl
+params_train['val_dl'] = val_dl
+params_train['sanity_check'] = True # Check
+params_train['lr_sheduler'] = lr_scheduler
+params_train['path2weights'] = './'
+
+model,loss_hist,metric_hist=train_val(model ,params_train)
+```
 
 ### Validation
 - 최적 Epoch를 확인하기 위한 시각화과정
@@ -163,24 +247,28 @@ history = model.fit(x_train2, y_train, epochs=10, batch_size = 64, validation_da
 - 과적합 구간을 확인함
 
 ```
-# 학습 곡선 준비(Acc)
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
+#LOSS
+num_epochs=params_train["num_epochs"]
 
-# 학습 곡선 준비(Loss)
-loss = history.history['loss']
-val_loss = history.history['val_loss']
-
-# 학습 곡선 플롯(Acc)
-plt.figure(figsize=(8,8))
-plt.subplot(2, 1, 1)
-plt.plot(acc, label='Training Accuracy')
-plt.plot(val_acc, label='Validation Accuracy')
-plt.legend(loc='lower right')
-plt.ylabel('Accuracy')
-plt.ylim([min(plt.ylim()),1])
-plt.title('Training and Validation Accuracy')
-
+plt.title("Train-Val Loss")
+plt.plot(range(1,num_epochs+1),loss_hist["train"],label="train")
+plt.plot(range(1,num_epochs+1),loss_hist["val"],label="val")
+plt.ylabel("Loss")
+plt.xlabel("Training Epochs")
+plt.legend()
+plt.show()
+```
+```
+# ACC
+# plot accuracy progress
+plt.title("Train-Val Accuracy")
+plt.plot(range(1,num_epochs+1),metric_hist["train"],label="train")
+plt.plot(range(1,num_epochs+1),metric_hist["val"],label="val")
+plt.ylabel("Accuracy")
+plt.xlabel("Training Epochs")
+plt.legend()
+plt.show()
+```
 # 학습 곡선 플롯(Loss)
 plt.subplot(2, 1, 2)
 plt.plot(loss, label='Training Loss')
